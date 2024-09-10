@@ -5,6 +5,7 @@ import { Select } from 'components/select';
 import { RadioGroup } from 'components/radio-group';
 import { Separator } from 'components/separator';
 import React, { FormEvent, useState, useRef } from 'react';
+import { useOutsideClickClose } from '../select/hooks/useOutsideClickClose';
 
 export type TArticleParamsForm = {
 	articleState: ArticleStateType;
@@ -15,12 +16,12 @@ import {
 	ArticleStateType,
 	fontFamilyOptions,
 	fontSizeOptions,
+	defaultArticleState,
 	fontColors,
 	backgroundColors,
 	contentWidthArr,
 	OptionType,
 } from 'src/constants/articleProps';
-
 
 import styles from './ArticleParamsForm.module.scss';
 import clsx from 'clsx';
@@ -41,6 +42,14 @@ export const ArticleParamsForm = ({
 		setIsMenuOpen(!isMenuOpen);
 	};
 
+	const rootRef = useRef<HTMLFormElement>(null);
+
+	useOutsideClickClose({
+		isOpen: isMenuOpen,
+		rootRef: rootRef,
+		onChange: setIsMenuOpen,
+	});
+
 	// Функция обработки изменения поля формы
 	const handleInputChange = (
 		key: keyof ArticleStateType,
@@ -60,7 +69,14 @@ export const ArticleParamsForm = ({
 			<ArrowButton OnClick={handleMenuClick} isOpenState={isMenuOpen} />
 			<aside
 				className={clsx(styles.container, isMenuOpen && styles.container_open)}>
-				<form className={styles.form} onSubmit={handleFormSubmit}>
+				<form
+					ref={rootRef}
+					className={styles.form}
+					onSubmit={handleFormSubmit}
+					onReset={() => {
+						setArticleState(defaultArticleState);
+						setSelectArticleState(defaultArticleState);
+					}}>
 					<Text size={31} weight={800} uppercase={true}>
 						Задайте параметры
 					</Text>
